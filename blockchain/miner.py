@@ -13,18 +13,25 @@ import random
 def proof_of_work(last_proof):
     """
     Multi-Ouroboros of Work Algorithm
-    - Find a number p' such that the last five digits of hash(p) are equal
-    to the first five digits of hash(p')
-    - IE:  last_hash: ...AE912345, new hash 12345888...
+    - Find a number p' such that the last six digits of hash(p) are equal
+    to the first six digits of hash(p')
+    - IE:  last_hash: ...AE9123456, new hash 123456888...
     - p is the previous proof, and p' is the new proof
     - Use the same method to generate SHA-256 hashes as the examples in class
     """
 
     start = timer()
+    str_hash = f"{last_proof}".encode()
+    last_hash = hashlib.sha256(str_hash).hexdigest()
 
     print("Searching for next proof")
-    proof = 0
-    #  TODO: Your code here
+    # I believe the purpose of a proof isn't decidedly to have the most
+    # unique implementation, but to try to ensure that you're consistently
+    # making guesses that haven't been made by somebody else before you.
+    proof = 9823492342
+
+    while valid_proof(last_hash, proof) is False:
+        proof += random.randint(1337, 999999)
 
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
@@ -32,15 +39,16 @@ def proof_of_work(last_proof):
 
 def valid_proof(last_hash, proof):
     """
-    Validates the Proof:  Multi-ouroborus:  Do the last five characters of
-    the hash of the last proof match the first five characters of the hash
+    Validates the Proof:  Multi-ouroborus:  Do the last six characters of
+    the hash of the last proof match the first six characters of the hash
     of the new proof?
-
-    IE:  last_hash: ...AE912345, new hash 12345E88...
+    IE:  last_hash: ...AE9123456, new hash 123456E88...
     """
 
-    # TODO: Your code here!
-    pass
+    str_hash = f"{proof}".encode()
+    result = hashlib.sha256(str_hash).hexdigest()
+
+    return last_hash[-5:] == result[:5]
 
 
 if __name__ == '__main__':
@@ -68,8 +76,7 @@ if __name__ == '__main__':
         data = r.json()
         new_proof = proof_of_work(data.get('proof'))
 
-        post_data = {"proof": new_proof,
-                     "id": id}
+        post_data = {"proof": new_proof, "id": id}
 
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
