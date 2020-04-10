@@ -1,9 +1,8 @@
 #  Hint:  You may not need all of these.  Remove the unused functions.
 from hashtables import (HashTable,
                         hash_table_insert,
-                        hash_table_remove,
-                        hash_table_retrieve,
-                        hash_table_resize)
+                        hash_table_retrieve
+                        )
 
 
 class Ticket:
@@ -14,10 +13,15 @@ class Ticket:
 
 def reconstruct_trip(tickets, length):
     hashtable = HashTable(length)
-    route = [None] * length
+    route = []
 
-    """
-    YOUR CODE HERE
-    """
+    for t in tickets:
+        hash_table_insert(hashtable, t.source, t.destination)
 
-    pass
+    destination = hash_table_retrieve(hashtable, 'NONE')
+
+    while destination != 'NONE':
+        route.append(destination)
+        destination = hash_table_retrieve(hashtable, destination)
+
+    return route
